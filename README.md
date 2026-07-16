@@ -146,7 +146,10 @@ python app.py
 
 ## 📸 Screenshots
 
-
+- Home Page : https://github.com/kotrashivakumar1804/Full-stack-project-Edu-Click-Academy-/blob/main/Home%20Page
+- Student Dashboard : https://github.com/kotrashivakumar1804/Full-stack-project-Edu-Click-Academy-/blob/main/Student%20Dashboard
+- Admin Dashboard : https://github.com/kotrashivakumar1804/Full-stack-project-Edu-Click-Academy-/blob/main/Admin%20Dashboard
+- Enrollment Page : https://github.com/kotrashivakumar1804/Full-stack-project-Edu-Click-Academy-/blob/main/Enrollment%20Page
 
 ---
 
