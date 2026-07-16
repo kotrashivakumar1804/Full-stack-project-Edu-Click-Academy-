@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">{{ title }}</h1>
+    <p class="text-secondary-emphasis mb-0">Fill out details below to add or edit professional courses in the catalog.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+            <h3 class="font-heading fw-bold mb-4">Course Curricula Form</h3>
+            
+            <form action="" method="POST" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                
+                <div class="row">
+                    <!-- Course Name -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.course_name(class="form-control" + (" is-invalid" if form.course_name.errors else ""), id="nameInput", placeholder="Course Name") }}
+                            <label for="nameInput">Course Name</label>
+                            {% for error in form.course_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Duration -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.duration(class="form-control" + (" is-invalid" if form.duration.errors else ""), id="durationInput", placeholder="Duration") }}
+                            <label for="durationInput">Duration (e.g. '8 Weeks', '3 Months')</label>
+                            {% for error in form.duration.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div class="form-floating mb-3">
+                    {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else ""), id="descInput", placeholder="Course Description", style="height: 120px;") }}
+                    <label for="descInput">Course Description / Syllabus details</label>
+                    {% for error in form.description.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="row">
+                    <!-- Fee -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.fee(class="form-control" + (" is-invalid" if form.fee.errors else ""), id="feeInput", placeholder="Course Fee") }}
+                            <label for="feeInput">Course Fee (₹)</label>
+                            {% for error in form.fee.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.status(class="form-select" + (" is-invalid" if form.status.errors else ""), id="statusInput") }}
+                            <label for="statusInput">Course Catalog Status</label>
+                            {% for error in form.status.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Instructor Name -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.instructor_name(class="form-control" + (" is-invalid" if form.instructor_name.errors else ""), id="instNameInput", placeholder="Instructor Name") }}
+                            <label for="instNameInput">Instructor Name</label>
+                            {% for error in form.instructor_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Instructor Email -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.instructor_email(class="form-control" + (" is-invalid" if form.instructor_email.errors else ""), id="instEmailInput", placeholder="Instructor Email") }}
+                            <label for="instEmailInput">Instructor Email</label>
+                            {% for error in form.instructor_email.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Course Image Cover upload -->
+                <div class="mb-4">
+                    <label for="imageInput" class="form-label text-muted text-sm mb-1">Course Cover Image (Optional)</label>
+                    {{ form.course_image(class="form-control" + (" is-invalid" if form.course_image.errors else ""), id="imageInput") }}
+                    {% for error in form.course_image.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <hr class="my-4 border-light">
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('admin.manage_courses') }}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Cancel
+                    </a>
+                    {{ form.submit(class="btn btn-primary px-4 fw-bold") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">{{ title }}</h1>
+    <p class="text-secondary-emphasis mb-0">Fill out student details below to update or register their account.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+            <h3 class="font-heading fw-bold mb-4">Student Details Form</h3>
+            
+            <form action="" method="POST">
+                {{ form.csrf_token }}
+                
+                <div class="row">
+                    <!-- Full Name -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else ""), id="nameInput", placeholder="Full Name") }}
+                            <label for="nameInput">Full Name</label>
+                            {% for error in form.full_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="emailInput", placeholder="Email Address") }}
+                            <label for="emailInput">Email Address</label>
+                            {% for error in form.email.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Mobile -->
+                    <div class="col-12 mb-3">
+                        <div class="form-floating">
+                            {{ form.mobile(class="form-control" + (" is-invalid" if form.mobile.errors else ""), id="mobileInput", placeholder="Mobile Number") }}
+                            <label for="mobileInput">Mobile Number</label>
+                            {% for error in form.mobile.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Gender -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.gender(class="form-select" + (" is-invalid" if form.gender.errors else ""), id="genderInput") }}
+                            <label for="genderInput">Gender</label>
+                            {% for error in form.gender.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Password (Conditional: Required if creating student, optional if editing) -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="passwordInput", placeholder="Password") }}
+                            <label for="passwordInput">Password {% if student %}(Leave blank to keep current){% else %}(Required){% endif %}</label>
+                            {% for error in form.password.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4 border-light">
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('admin.manage_students') }}" class="btn btn-outline-secondary px-4">
+                        <i class="bi bi-arrow-left me-1"></i> Back to List
+                    </a>
+                    {{ form.submit(class="btn btn-primary px-4 fw-bold") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

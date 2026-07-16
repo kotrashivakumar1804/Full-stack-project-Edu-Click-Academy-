@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Available Courses - Student Course Management Portal{% endblock %}
+
+{% block content %}
+{% block portal_content %}
+<!-- Header Banner -->
+<section class="hero-section text-center py-5 mb-5">
+    <div class="container py-3">
+        <h1 class="display-5 fw-extrabold font-heading text-white mb-3">Available Courses</h1>
+        <p class="lead text-light mb-0">Browse and search through our active professional curricula catalog.</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    
+    <!-- Search Bar -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-8">
+            <form action="{{ url_for('main.courses') }}" method="GET" class="no-loader">
+                <div class="input-group input-group-lg shadow-sm border border-light rounded-3 overflow-hidden">
+                    <span class="input-group-text bg-white border-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control border-0" placeholder="Search by course name, instructor name, description..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary px-4 fw-bold">Search</button>
+                </div>
+                {% if search_query %}
+                    <div class="text-start mt-2">
+                        <small class="text-muted">Showing results for "<strong>{{ search_query }}</strong>". <a href="{{ url_for('main.courses') }}" class="text-decoration-none">Clear search</a></small>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="row g-4 mb-5">
+        {% for course in courses %}
+            <div class="col-md-4">
+                <div class="card h-100 course-card">
+                    <img src="{{ url_for('static', filename=course.course_image) }}" class="card-img-top course-card-img" alt="{{ course.course_name }}">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <span class="badge bg-secondary-subtle text-secondary align-self-start mb-2">{{ course.duration }}</span>
+                        {% set price = course.current_price_details %}
+                        {% if price.has_offer %}
+                            <span class="badge bg-warning text-dark align-self-start mb-2 fw-bold">
+                                🔥 {{ price.discount_percent|int }}% OFF
+                            </span>
+                        {% endif %}
+                        <h4 class="card-title font-heading h5 mb-3">{{ course.course_name }}</h4>
+                        <p class="card-text text-muted text-sm flex-grow-1">
+                            {{ course.description[:120] }}...
+                        </p>
+                        <hr class="my-3 border-light">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <small class="d-block text-muted text-xs">Instructor</small>
+                                <span class="fw-bold text-sm">{{ course.instructor_name }}</span>
+                            </div>
+                                <div class="text-end">
+                                    <small class="d-block text-muted text-xs">Course Fee</small>
+                                    {% set price = course.current_price_details %}
+                                    {% if price.has_offer %}
+                                        <span class="text-muted text-decoration-line-through text-sm me-1">₹{{ "%.2f"|format(price.original_fee) }}</span>
+                                        <span class="badge bg-danger text-xxs px-1.5 py-1 me-1">🔥 {{ price.discount_percent|int }}% OFF</span>
+                                        <span class="fw-extrabold text-success font-heading h5">
+                                            ₹{{ "%.2f"|format(price.discounted_fee) }}
+                                        </span>
+                                    {% else %}
+                                        <span class="fw-extrabold text-primary font-heading h5">₹{{ "%.2f"|format(price.original_fee) }}</span>
+                                    {% endif %}
+                                </div>
+                        </div>
+                        <a href="{{ url_for('main.course_details', course_id=course.course_id) }}" class="btn btn-outline-primary w-100 mt-auto">
+                            View Course Details <i class="bi bi-chevron-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+                <h4 class="font-heading mb-2">No Courses Found</h4>
+                <p class="text-muted">We couldn't find any courses matching your search criteria. Try a different term.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Course list pagination">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.courses', q=search_query, page=pagination.prev_num) }}" tabindex="-1">Previous</a>
+                </li>
+                
+                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.courses', q=search_query, page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.courses', q=search_query, page=pagination.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+
+</div>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Secure Sign In - Student Course Management Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <!-- Admin Login uses the dark Slate styling card for security feel -->
+            <div class="card border-0 p-4 rounded-4 shadow-lg bg-dark text-white">
+                <div class="text-center mb-4">
+                    <div class="bg-danger text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                        <i class="bi bi-shield-lock-fill fs-4"></i>
+                    </div>
+                    <h2 class="font-heading fw-bold">Admin Portal</h2>
+                    <p class="text-secondary">Enter secure credentials to access control panel</p>
+                </div>
+                
+                <form action="{{ url_for('auth.admin_login') }}" method="POST">
+                    {{ form.csrf_token }}
+                    
+                    <div class="form-floating mb-3 text-dark">
+                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="emailInput", placeholder="Email Address") }}
+                        <label for="emailInput">Email Address</label>
+                        {% for error in form.email.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-floating mb-4 text-dark">
+                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="passwordInput", placeholder="Password") }}
+                        <label for="passwordInput">Password</label>
+                        {% for error in form.password.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-danger w-100 py-3 fw-bold btn-lg mb-3") }}
+                    
+                    <div class="text-center mt-3 d-flex justify-content-between">
+                        <a href="{{ url_for('main.home') }}" class="text-secondary text-decoration-none text-sm">
+                            <i class="bi bi-arrow-left me-1"></i> Homepage
+                        </a>
+                        <a href="{{ url_for('auth.login') }}" class="text-info text-decoration-none text-sm fw-bold">
+                            Student Login <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

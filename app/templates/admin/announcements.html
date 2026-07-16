@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Announcements - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <h1 class="display-6 fw-bold font-heading mb-2">Announcements Manager</h1>
+            <p class="text-secondary-emphasis mb-0">Publish new bulletins, notify students, and maintain dashboard announcements.</p>
+        </div>
+        <div class="mt-3 mt-sm-0">
+            <a href="{{ url_for('admin.add_announcement') }}" class="btn btn-primary px-4 fw-bold">
+                <i class="bi bi-megaphone me-1"></i> Post Announcement
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    <h3 class="font-heading fw-bold mb-4">Announcement Archive</h3>
+
+    <!-- Announcements List -->
+    {% if announcements %}
+        <div class="list-group list-group-flush border rounded-3 overflow-hidden shadow-sm">
+            {% for item in announcements %}
+                <div class="list-group-item p-4 {% if item.is_offer and item.is_valid_offer %}bg-warning-subtle{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                        <div>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                {% if item.is_offer %}
+                                    {% if item.is_valid_offer %}
+                                        <span class="badge bg-warning text-dark fw-bold">
+                                            <i class="bi bi-tag-fill me-1"></i>🔥 {{ item.discount_percent|int }}% OFF Active
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary fw-bold">
+                                            <i class="bi bi-tag me-1"></i>Offer (Inactive/Expired)
+                                        </span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-primary-subtle text-primary fw-bold">
+                                        <i class="bi bi-megaphone me-1"></i>General
+                                    </span>
+                                {% endif %}
+                                {% if not item.is_active %}
+                                    <span class="badge bg-danger-subtle text-danger">Disabled</span>
+                                {% endif %}
+                            </div>
+                            <h4 class="font-heading h5 fw-bold mb-1 text-dark">{{ item.title }}</h4>
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>Posted: {{ item.created_at.strftime('%d %b %Y %H:%M') }}
+                                {% if item.expires_at %}
+                                    &nbsp;|&nbsp;<i class="bi bi-calendar-x me-1"></i>Expires: {{ item.expires_at.strftime('%d %b %Y') }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            <a href="{{ url_for('admin.edit_announcement', announcement_id=item.announcement_id) }}" class="btn btn-outline-primary btn-xs" title="Edit">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <form action="{{ url_for('admin.delete_announcement', announcement_id=item.announcement_id) }}" method="POST" onsubmit="return confirm('Delete this announcement?');" class="no-loader m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger btn-xs"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted text-sm mb-0" style="white-space: pre-line;">{{ item.description }}</p>
+                    
+                    {% if item.is_offer and item.discount_percent %}
+                        <div class="mt-2 text-xs text-warning-emphasis fw-semibold">
+                            <i class="bi bi-info-circle me-1"></i>
+                            This offer applies a <strong>{{ item.discount_percent|int }}% discount</strong> to all course fees when students enroll.
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-megaphone-fill display-6 mb-3 d-block text-secondary"></i>
+            No announcements have been published yet.
+        </div>
+    {% endif %}
+
+    <!-- Table Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Announcements list pagination" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_announcements', page=pagination.prev_num) }}">Previous</a>
+                </li>
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.manage_announcements', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_announcements', page=pagination.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

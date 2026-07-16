@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Enrollments - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">Enrollment Requests Manager</h1>
+    <p class="text-secondary-emphasis mb-0">Verify transaction receipt values, approve admissions, and update payment statuses.</p>
+</div>
+
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    <h3 class="font-heading fw-bold mb-4">Admissions Registry</h3>
+
+    <!-- Enrollments list table -->
+    <div class="table-responsive table-responsive-custom mb-4">
+        <table class="table align-middle mb-0" style="font-size:13px;">
+            <thead>
+                <tr>
+                    <th scope="col" class="py-3 px-3">Student</th>
+                    <th scope="col" class="py-3">Course Catalog Item</th>
+                    <th scope="col" class="py-3">Date Applied</th>
+                    <th scope="col" class="py-3">Txn Reference</th>
+                    <th scope="col" class="py-3" style="width: 15%;">Payment status</th>
+                    <th scope="col" class="py-3">Enrollment status</th>
+                    <th scope="col" class="py-3 text-end px-3" style="width: 20%;">Admissions Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in enrollments %}
+                    <tr class="border-bottom">
+                        <!-- Student details -->
+                        <td class="py-3 px-3">
+                            <span class="fw-bold d-block text-dark">{{ item.student.full_name }}</span>
+                            <small class="text-muted text-xs">{{ item.student.email }}</small>
+                        </td>
+                        
+                        <!-- Course details -->
+                        <td class="py-3">
+                            <span class="d-block text-dark fw-medium text-truncate" style="max-width: 180px;">{{ item.course.course_name }}</span>
+                            <small class="text-muted text-xs">Fee: ₹{{ item.course.fee }}</small>
+                        </td>
+                        
+                        <!-- Date -->
+                        <td class="py-3">{{ item.enrollment_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        
+                        <!-- Payment details reference code and receipt screenshot link -->
+                        <td class="py-3">
+                            {% if item.payment_reference %}
+                                <span class="badge bg-light text-dark border font-monospace d-block mb-1 text-center" style="max-width: 100px;">{{ item.payment_reference }}</span>
+                            {% else %}
+                                <span class="text-muted text-xs d-block mb-1">None</span>
+                            {% endif %}
+                            {% if item.payment_screenshot %}
+                                <a href="{{ url_for('static', filename=item.payment_screenshot) }}" target="_blank" class="btn btn-outline-info btn-xs py-1 px-2 text-xs d-inline-flex align-items-center gap-1 mt-1" style="font-size: 10px;">
+                                    <i class="bi bi-image"></i> View Receipt
+                                </a>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Manual Payment status change drop down -->
+                        <td class="py-3">
+                            <form action="{{ url_for('admin.update_payment_status', enrollment_id=item.enrollment_id) }}" method="POST" class="no-loader d-flex align-items-center gap-1 m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <select name="payment_status" class="form-select form-select-sm text-xs py-1" style="min-width: 90px; padding: 2px 4px; font-size:11px;">
+                                    <option value="Unpaid" {% if item.payment_status == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+                                    <option value="Submitted" {% if item.payment_status == 'Submitted' %}selected{% endif %}>Submitted</option>
+                                    <option value="Paid" {% if item.payment_status == 'Paid' %}selected{% endif %}>Paid</option>
+                                </select>
+                                <button type="submit" class="btn btn-outline-secondary btn-xs py-1 px-2" style="font-size:10px;">Save</button>
+                            </form>
+                        </td>
+                        
+                        <!-- Status Badge -->
+                        <td class="py-3">
+                            <span class="status-badge status-badge-{{ item.enrollment_status.lower().replace(' ', '-') }}">{{ item.enrollment_status }}</span>
+                        </td>
+                        
+                        <!-- Curation Actions -->
+                        <td class="py-3 text-end px-3">
+                            <div class="d-flex align-items-center justify-content-end gap-1">
+                                {% if item.enrollment_status in ['Pending Payment', 'Payment Submitted'] %}
+                                    <form action="{{ url_for('admin.approve_enrollment', enrollment_id=item.enrollment_id) }}" method="POST" class="no-loader m-0">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-success btn-xs" title="Approve Request">
+                                            <i class="bi bi-check-lg"></i> Approve
+                                        </button>
+                                    </form>
+                                    
+                                    <form action="{{ url_for('admin.reject_enrollment', enrollment_id=item.enrollment_id) }}" method="POST" class="no-loader m-0">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-xs" title="Reject Request">
+                                            <i class="bi bi-x-lg"></i> Reject
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <span class="text-muted text-xs"><i class="bi bi-lock-fill"></i> Settled</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center py-5 text-muted">
+                            <i class="bi bi-credit-card-2-front display-6 mb-3 d-block text-secondary"></i>
+                            No enrollment requests registered yet.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Enrollment list pagination">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_enrollments', page=pagination.prev_num) }}">Previous</a>
+                </li>
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.manage_enrollments', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_enrollments', page=pagination.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

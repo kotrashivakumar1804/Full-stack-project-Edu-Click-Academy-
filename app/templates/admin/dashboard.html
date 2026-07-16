@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Control Panel{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold font-heading mb-2">Administrator Control Panel</h1>
+            <p class="text-secondary-emphasis mb-0">Monitor registrations, approve course requests, manage courses, and generate reports.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="badge bg-danger px-3 py-2 text-uppercase fw-bold"><i class="bi bi-shield-fill-check me-1"></i> Admin Session Secure</span>
+        </div>
+    </div>
+</div>
+
+<!-- Admin Statistics Cards -->
+<div class="row g-4 mb-4">
+    <!-- Stat 1: Total Students -->
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-primary">
+                <i class="bi bi-people"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ total_students }}</h3>
+            <p class="text-muted text-sm mb-0">Total Students</p>
+            <a href="{{ url_for('admin.manage_students') }}" class="stretched-link"></a>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Total Courses -->
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-secondary">
+                <i class="bi bi-journal-bookmark-fill"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ total_courses }}</h3>
+            <p class="text-muted text-sm mb-0">Total Courses</p>
+            <a href="{{ url_for('admin.manage_courses') }}" class="stretched-link"></a>
+        </div>
+    </div>
+    
+    <!-- Stat 3: Total Enrollments -->
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-accent">
+                <i class="bi bi-credit-card"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ total_enrollments }}</h3>
+            <p class="text-muted text-sm mb-0">Enrollments</p>
+            <a href="{{ url_for('admin.manage_enrollments') }}" class="stretched-link"></a>
+        </div>
+    </div>
+    
+    <!-- Stat 4: Support Messages -->
+    <div class="col-6 col-lg-3">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-secondary" style="background-color: rgba(16, 185, 129, 0.1); color: #10b981;">
+                <i class="bi bi-chat-left-text"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ total_messages }}</h3>
+            <p class="text-muted text-sm mb-0">Support Tickets</p>
+            <a href="{{ url_for('admin.manage_messages') }}" class="stretched-link"></a>
+        </div>
+    </div>
+</div>
+
+<!-- Chart JS Layouts -->
+<div class="row g-4 mb-4">
+    <!-- Chart 1: Daily Registrations -->
+    <div class="col-lg-7">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white h-100">
+            <h3 class="font-heading fw-bold mb-3 h5">Student Registration Trends (Last 7 Days)</h3>
+            <div style="height: 250px; position: relative;">
+                <canvas id="registrationsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chart 2: Enrollment Distribution -->
+    <div class="col-lg-5">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white h-100">
+            <h3 class="font-heading fw-bold mb-3 h5">Course Enrollment Volume</h3>
+            <div style="height: 250px; position: relative;">
+                <canvas id="enrollmentsChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Student Registrations Table -->
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="font-heading fw-bold mb-0 h5">Recent Student Registrations</h3>
+        <a href="{{ url_for('admin.manage_students') }}" class="text-decoration-none text-sm">View All Students</a>
+    </div>
+    
+    <div class="table-responsive table-responsive-custom">
+        <table class="table align-middle mb-0">
+            <thead>
+                <tr>
+                    <th scope="col" class="py-3 px-3">Student Name</th>
+                    <th scope="col" class="py-3">Email Address</th>
+                    <th scope="col" class="py-3">Mobile Number</th>
+                    <th scope="col" class="py-3">Registered At</th>
+                    <th scope="col" class="py-3 text-end px-3">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in recent_registrations %}
+                    <tr class="border-bottom">
+                        <td class="py-3 px-3 fw-bold">{{ student.full_name }}</td>
+                        <td class="py-3">{{ student.email }}</td>
+                        <td class="py-3">{{ student.mobile }}</td>
+                        <td class="py-3">{{ student.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td class="py-3 text-end px-3">
+                            <a href="{{ url_for('admin.edit_student', student_id=student.student_id) }}" class="btn btn-outline-primary btn-xs">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4 text-muted">No student records registered yet.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Load Chart Renderers -->
+<script src="{{ url_for('static', filename='js/dashboard-charts.js') }}"></script>
+{% endblock %}

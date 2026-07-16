@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block title %}Offer Management - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <div class="d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <h1 class="display-6 fw-bold font-heading mb-2">Offer Management</h1>
+            <p class="text-secondary-emphasis mb-0">Create, enable/disable, and apply discount offers to courses dynamically.</p>
+        </div>
+        <div class="mt-3 mt-sm-0">
+            <a href="{{ url_for('admin.add_offer') }}" class="btn btn-primary px-4 fw-bold">
+                <i class="bi bi-tag-fill me-1"></i> Create Offer
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    <h3 class="font-heading fw-bold mb-4">Offer Registry</h3>
+
+    <!-- Offers List -->
+    {% if offers %}
+        <div class="list-group list-group-flush border rounded-3 overflow-hidden shadow-sm">
+            {% for item in offers %}
+                <div class="list-group-item p-4 {% if item.is_valid_offer %}bg-warning-subtle{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                        <div>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                {% if item.is_valid_offer %}
+                                    <span class="badge bg-warning text-dark fw-bold">
+                                        <i class="bi bi-tag-fill me-1"></i>🔥 {{ item.discount_percent|int }}% OFF Active
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary fw-bold">
+                                        <i class="bi bi-tag me-1"></i>Offer (Inactive/Expired)
+                                    </span>
+                                {% endif %}
+                                {% if not item.is_active %}
+                                    <span class="badge bg-danger-subtle text-danger">Disabled</span>
+                                {% endif %}
+                            </div>
+                            <h4 class="font-heading h5 fw-bold mb-1 text-dark">{{ item.title }}</h4>
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>Created: {{ item.created_at.strftime('%d %b %Y') }}
+                                {% if item.start_at %}
+                                    &nbsp;|&nbsp;<i class="bi bi-calendar-play me-1"></i>Starts: {{ item.start_at.strftime('%d %b %Y') }}
+                                {% endif %}
+                                {% if item.expires_at %}
+                                    &nbsp;|&nbsp;<i class="bi bi-calendar-x me-1"></i>Expires: {{ item.expires_at.strftime('%d %b %Y') }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                            <a href="{{ url_for('admin.edit_offer', announcement_id=item.announcement_id) }}" class="btn btn-outline-primary btn-xs" title="Edit">
+                                <i class="bi bi-pencil-square"></i> Edit
+                            </a>
+                            <form action="{{ url_for('admin.delete_offer', announcement_id=item.announcement_id) }}" method="POST" onsubmit="return confirm('Delete this discount offer?');" class="no-loader m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger btn-xs"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <p class="text-muted text-sm mb-3" style="white-space: pre-line;">{{ item.description }}</p>
+                    
+                    <!-- Applied Courses info -->
+                    {% if item.courses %}
+                        <div class="text-xs text-secondary-emphasis">
+                            <i class="bi bi-journal-bookmark-fill me-1"></i>
+                            Applied to: 
+                            {% for c in item.courses %}
+                                <span class="badge bg-secondary text-secondary-emphasis me-1">{{ c.course_name }}</span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-xs text-success-emphasis fw-bold">
+                            <i class="bi bi-globe me-1"></i>
+                            Applied to: <span class="badge bg-success text-success-emphasis">All Courses (Global Offer)</span>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-tag-fill display-6 mb-3 d-block text-secondary"></i>
+            No offers have been created yet.
+        </div>
+    {% endif %}
+
+    <!-- Table Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Offers list pagination" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_offers', page=pagination.prev_num) }}">Previous</a>
+                </li>
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.manage_offers', page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_offers', page=pagination.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

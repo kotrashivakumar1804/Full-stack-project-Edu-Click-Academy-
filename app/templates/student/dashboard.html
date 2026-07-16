@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block portal_content %}
+<!-- Welcome Header Banner -->
+<div class="gradient-card">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <h1 class="display-6 fw-bold font-heading mb-2">Welcome Back, {{ current_user.full_name }}!</h1>
+            <p class="text-secondary-emphasis mb-0">Track your active courses, announcements, and submit new enrollment inquiries below.</p>
+        </div>
+        <div class="col-md-4 text-md-end mt-3 mt-md-0">
+            <span class="text-secondary text-sm">Today is: {{ current_year }}</span>
+        </div>
+    </div>
+</div>
+
+<!-- Dashboard Stats -->
+<div class="row g-4 mb-4">
+    <!-- Stat 1: Total Available Courses -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-primary">
+                <i class="bi bi-book"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ total_available_courses }}</h3>
+            <p class="text-muted mb-0">Total Available Courses</p>
+            <a href="{{ url_for('main.courses') }}" class="stretched-link"></a>
+        </div>
+    </div>
+    
+    <!-- Stat 2: Enrolled Courses count -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-secondary">
+                <i class="bi bi-journal-check"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ my_courses_count }}</h3>
+            <p class="text-muted mb-0">My Approved Courses</p>
+            <a href="{{ url_for('student.courses') }}" class="stretched-link"></a>
+        </div>
+    </div>
+    
+    <!-- Stat 3: Total Requests count -->
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon-wrapper stat-icon-accent">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <h3 class="display-6 fw-bold font-heading mb-1">{{ my_enrollments_count }}</h3>
+            <p class="text-muted mb-0">Total Course Requests</p>
+            <a href="{{ url_for('student.courses') }}" class="stretched-link"></a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Left Column: Announcements & Notifications -->
+    <div class="col-lg-8">
+        
+        <!-- Announcements Banner -->
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="font-heading fw-bold mb-0"><i class="bi bi-megaphone text-primary me-2"></i>Latest Announcements</h3>
+                <span class="badge bg-primary-subtle text-primary">Updates</span>
+            </div>
+            
+            {% for announcement in latest_announcements %}
+                <div class="border-bottom py-3 {% if loop.last %}border-0 pb-0{% endif %}">
+                    <h5 class="font-heading h6 mb-1 text-dark fw-bold">{{ announcement.title }}</h5>
+                    <small class="text-muted d-block mb-2">{{ announcement.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                    <p class="text-muted text-sm mb-0">{{ announcement.description }}</p>
+                </div>
+            {% else %}
+                <p class="text-muted text-center py-3">No admin announcements published yet.</p>
+            {% endfor %}
+        </div>
+        
+        <!-- Recent Notifications -->
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3 class="font-heading fw-bold mb-0"><i class="bi bi-bell text-secondary me-2"></i>Recent Alerts</h3>
+                <a href="{{ url_for('student.notifications') }}" class="text-decoration-none text-sm">View All</a>
+            </div>
+            
+            {% for notif in notifications %}
+                <div class="d-flex align-items-start border-bottom py-3 {% if loop.last %}border-0 pb-0{% endif %}">
+                    <div class="bg-secondary-subtle text-secondary rounded-circle p-2 me-3">
+                        <i class="bi bi-info-circle"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0 fw-bold">{{ notif.title }}</h6>
+                            <small class="text-muted" style="font-size: 11px;">{{ notif.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="text-muted text-sm mb-1">{{ notif.message }}</p>
+                        <a href="{{ url_for('student.mark_read', notification_id=notif.notification_id) }}" class="btn btn-link btn-sm p-0 text-decoration-none">Mark as Read</a>
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted text-center py-3">No unread notifications.</p>
+            {% endfor %}
+        </div>
+        
+    </div>
+    
+    <!-- Right Column: Profile Completion & Support -->
+    <div class="col-lg-4">
+        
+        <!-- Profile Completion Status -->
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white mb-4 text-center">
+            <h4 class="font-heading fw-bold mb-3">Profile Status</h4>
+            <div class="profile-pic-container mb-3">
+                <img src="{{ url_for('static', filename=current_user.profile_picture) }}" alt="Profile Photo">
+            </div>
+            <h5 class="font-heading h6 fw-bold mb-2">{{ current_user.full_name }}</h5>
+            
+            <div class="mt-3 mb-2 d-flex justify-content-between align-items-center">
+                <small class="text-muted text-xs">Profile Completion</small>
+                <small class="fw-bold text-xs text-primary">{{ profile_completion }}%</small>
+            </div>
+            <div class="progress mb-3" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ profile_completion }}%" aria-valuenow="{{ profile_completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            
+            {% if profile_completion < 100 %}
+                <p class="text-xs text-muted mb-3">Complete your profile details or upload a profile picture to reach 100% completion!</p>
+            {% endif %}
+            
+            <a href="{{ url_for('student.edit_profile') }}" class="btn btn-outline-primary w-100 btn-sm">Edit Profile</a>
+        </div>
+        
+        <!-- Contact Support -->
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white text-center">
+            <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                <i class="bi bi-question-circle fs-4"></i>
+            </div>
+            <h4 class="font-heading fw-bold mb-2">Contact Support</h4>
+            <p class="text-muted text-sm mb-4">Have questions regarding course payments, registrations or schedules?</p>
+            <a href="{{ url_for('main.contact') }}" class="btn btn-primary w-100 btn-sm py-2">Open Ticket</a>
+        </div>
+        
+    </div>
+</div>
+{% endblock %}

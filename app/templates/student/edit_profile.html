@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Profile{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">Edit Profile Info</h1>
+    <p class="text-secondary-emphasis mb-0">Update your student registry details and upload a custom avatar.</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+            <h3 class="font-heading fw-bold mb-4">Edit Form</h3>
+            
+            <form action="{{ url_for('student.edit_profile') }}" method="POST" enctype="multipart/form-data">
+                {{ form.csrf_token }}
+                
+                <div class="row">
+                    <!-- Full Name -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else ""), id="nameInput", placeholder="Full Name") }}
+                            <label for="nameInput">Full Name</label>
+                            {% for error in form.full_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Email -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="emailInput", placeholder="Email Address") }}
+                            <label for="emailInput">Email Address</label>
+                            {% for error in form.email.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Mobile -->
+                    <div class="col-12 mb-3">
+                        <div class="form-floating">
+                            {{ form.mobile(class="form-control" + (" is-invalid" if form.mobile.errors else ""), id="mobileInput", placeholder="Mobile Number") }}
+                            <label for="mobileInput">Mobile Number</label>
+                            {% for error in form.mobile.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <!-- Gender -->
+                    <div class="col-md-6 mb-3">
+                        <div class="form-floating">
+                            {{ form.gender(class="form-select" + (" is-invalid" if form.gender.errors else ""), id="genderInput") }}
+                            <label for="genderInput">Gender</label>
+                            {% for error in form.gender.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Profile Picture Upload -->
+                    <div class="col-md-6 mb-3">
+                        <div class="h-100 d-flex flex-column justify-content-center">
+                            <label for="pictureInput" class="form-label text-muted text-sm mb-1">Upload Profile Image</label>
+                            {{ form.profile_picture(class="form-control" + (" is-invalid" if form.profile_picture.errors else ""), id="pictureInput") }}
+                            {% for error in form.profile_picture.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <hr class="my-4 border-light">
+                
+                <div class="d-flex justify-content-between align-items-center">
+                    <a href="{{ url_for('student.profile') }}" class="btn btn-outline-secondary px-4 py-2">
+                        <i class="bi bi-arrow-left me-1"></i> Cancel
+                    </a>
+                    {{ form.submit(class="btn btn-primary px-4 py-2 fw-bold") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block title %}Inquiry #{{ inquiry.inquiry_id }} - Admin{% endblock %}
+
+{% block portal_content %}
+<!-- Header -->
+<div class="gradient-card mb-4 p-4 rounded-4 position-relative overflow-hidden border-0 shadow-md">
+    <div class="row align-items-center">
+        <div class="col">
+            <a href="{{ url_for('admin.manage_inquiries') }}" class="btn btn-sm btn-outline-light mb-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to Inquiries
+            </a>
+            <h1 class="h4 fw-extrabold font-heading mb-1 text-white">{{ inquiry.subject }}</h1>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="badge bg-white text-primary fw-bold">
+                    <i class="bi bi-person-fill me-1"></i>{% if inquiry.student %}{{ inquiry.student.full_name }}{% else %}{{ inquiry.name }} (Visitor){% endif %}
+                </span>
+                <span class="badge bg-white-20 text-white">
+                    <i class="bi bi-journal-bookmark-fill me-1"></i>{% if inquiry.course %}{{ inquiry.course.course_name }}{% else %}General Inquiry{% endif %}
+                </span>
+                {% if inquiry.status == 'Replied' %}
+                    <span class="badge bg-success">Replied</span>
+                {% elif inquiry.status == 'Closed' %}
+                    <span class="badge bg-secondary">Closed</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Chat Thread -->
+    <div class="col-lg-8">
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4">
+            <h5 class="font-heading fw-bold mb-4"><i class="bi bi-chat-text-fill text-primary me-2"></i>Conversation Thread</h5>
+
+            <div class="d-flex flex-column gap-4">
+                <!-- Original Student Message -->
+                <div class="d-flex align-items-start gap-3">
+                    <div class="flex-shrink-0 bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
+                         style="width:40px;height:40px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-sm text-primary">{% if inquiry.student %}{{ inquiry.student.full_name }} (Student){% else %}{{ inquiry.name }} (Visitor){% endif %}</span>
+                            <small class="text-muted text-xxs">{{ inquiry.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                        </div>
+                        <div class="p-3 rounded-3 bg-light text-dark text-sm" style="white-space: pre-line;">{{ inquiry.message }}</div>
+                    </div>
+                </div>
+
+                <!-- All replies in thread order -->
+                {% for reply in inquiry.replies %}
+                    {% if reply.sender_role == 'student' %}
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="flex-shrink-0 bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
+                                 style="width:40px;height:40px;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-sm text-primary">{% if inquiry.student %}{{ inquiry.student.full_name }} (Student){% else %}{{ inquiry.name }} (Visitor){% endif %}</span>
+                                    <small class="text-muted text-xxs">{{ reply.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                                </div>
+                                <div class="p-3 rounded-3 bg-light text-dark text-sm" style="white-space: pre-line;">{{ reply.message }}</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="d-flex align-items-start gap-3 flex-row-reverse">
+                            <div class="flex-shrink-0 rounded-circle d-flex justify-content-center align-items-center text-white"
+                                 style="width:40px;height:40px;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                            <div class="flex-grow-1 text-end">
+                                <div class="d-flex justify-content-between align-items-center mb-1 flex-row-reverse">
+                                    <span class="fw-bold text-sm" style="color:#4f46e5;"><i class="bi bi-patch-check-fill me-1"></i>Admin</span>
+                                    <small class="text-muted text-xxs">{{ reply.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                                </div>
+                                <div class="p-3 rounded-3 text-dark text-sm text-start"
+                                     style="white-space: pre-line; background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.2);">{{ reply.message }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if not inquiry.replies %}
+                    <div class="text-center py-3 text-muted">
+                        <i class="bi bi-chat d-block mb-1"></i>
+                        <small>No replies yet. Use the form below to respond.</small>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Admin Reply Form -->
+            {% if inquiry.status != 'Closed' %}
+                <hr class="my-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-reply-fill text-primary me-1"></i>Send Admin Reply</h6>
+                <form method="POST" action="{{ url_for('admin.inquiry_detail', inquiry_id=inquiry.inquiry_id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <input type="hidden" name="action" value="reply">
+                    <textarea name="reply_message" class="form-control mb-3"
+                              rows="4" placeholder="Type your reply to the student..."
+                              style="font-size:13px;" required></textarea>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        <i class="bi bi-send-fill me-2"></i>Send Reply to Student
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-secondary mt-4 mb-0 text-center text-sm">
+                    <i class="bi bi-lock-fill me-2"></i>This inquiry is closed. Change status to reopen.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="col-lg-4">
+        <!-- Inquiry Info -->
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4 mb-3">
+            <h6 class="font-heading fw-bold mb-3">Inquiry Info</h6>
+            <dl class="row text-xs mb-0">
+                <dt class="col-5 text-muted">Student</dt>
+                <dd class="col-7 fw-semibold text-dark">{{ inquiry.student.full_name }}</dd>
+                <dt class="col-5 text-muted">Email</dt>
+                <dd class="col-7 text-dark" style="word-break:break-all;">{{ inquiry.student.email }}</dd>
+                <dt class="col-5 text-muted">Course</dt>
+                <dd class="col-7 fw-semibold text-dark">{{ inquiry.course.course_name }}</dd>
+                <dt class="col-5 text-muted">Submitted</dt>
+                <dd class="col-7 text-dark">{{ inquiry.created_at.strftime('%d %b %Y') }}</dd>
+                <dt class="col-5 text-muted">Messages</dt>
+                <dd class="col-7 text-dark">{{ inquiry.replies|length + 1 }}</dd>
+            </dl>
+        </div>
+
+        <!-- Status Update -->
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4 mb-3">
+            <h6 class="font-heading fw-bold mb-3">Update Status</h6>
+            <form method="POST" action="{{ url_for('admin.inquiry_detail', inquiry_id=inquiry.inquiry_id) }}" class="no-loader">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="status">
+                <div class="mb-3">
+                    <select name="status" class="form-select form-select-sm">
+                        <option value="Pending" {% if inquiry.status == 'Pending' %}selected{% endif %}>Pending</option>
+                        <option value="Replied" {% if inquiry.status == 'Replied' %}selected{% endif %}>Replied</option>
+                        <option value="Closed" {% if inquiry.status == 'Closed' %}selected{% endif %}>Closed</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-outline-primary btn-sm w-100 fw-bold">
+                    <i class="bi bi-check-circle me-1"></i>Update Status
+                </button>
+            </form>
+        </div>
+
+        <!-- Delete -->
+        <div class="card border border-danger-subtle rounded-4 shadow-sm bg-white p-4">
+            <h6 class="font-heading fw-bold mb-2 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Danger Zone</h6>
+            <p class="text-muted text-xs mb-3">Permanently delete this inquiry and all its messages.</p>
+            <form method="POST" action="{{ url_for('admin.delete_inquiry', inquiry_id=inquiry.inquiry_id) }}" class="no-loader"
+                  onsubmit="return confirm('Permanently delete this inquiry and all replies?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn-outline-danger btn-sm w-100 fw-bold">
+                    <i class="bi bi-trash-fill me-1"></i>Delete Inquiry
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

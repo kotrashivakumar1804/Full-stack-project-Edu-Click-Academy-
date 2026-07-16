@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Student Registration - Student Course Management Portal{% endblock %}
+
+{% block content %}
+<div class="container py-5 my-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-7">
+            <div class="card border border-light p-4 p-md-5 rounded-4 shadow-sm bg-white">
+                <div class="text-center mb-4">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex justify-content-center align-items-center mb-3" style="width: 50px; height: 50px;">
+                        <i class="bi bi-person-plus-fill fs-4"></i>
+                    </div>
+                    <h2 class="font-heading fw-bold">Student Registration</h2>
+                    <p class="text-muted">Create an account to browse courses and manage enrollments</p>
+                </div>
+                
+                <form action="{{ url_for('auth.register') }}" method="POST">
+                    {{ form.csrf_token }}
+                    
+                    <div class="row">
+                        <!-- Full Name -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form.full_name(class="form-control" + (" is-invalid" if form.full_name.errors else ""), id="nameInput", placeholder="Full Name") }}
+                                <label for="nameInput">Full Name</label>
+                                {% for error in form.full_name.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Email -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="emailInput", placeholder="Email Address") }}
+                                <label for="emailInput">Email Address</label>
+                                {% for error in form.email.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Mobile Number -->
+                        <div class="col-12 mb-3">
+                            <div class="form-floating">
+                                {{ form.mobile(class="form-control" + (" is-invalid" if form.mobile.errors else ""), id="mobileInput", placeholder="Mobile Number") }}
+                                <label for="mobileInput">Mobile Number</label>
+                                {% for error in form.mobile.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Gender Selection -->
+                        <div class="col-12 mb-3">
+                            <div class="form-floating">
+                                {{ form.gender(class="form-select" + (" is-invalid" if form.gender.errors else ""), id="genderInput") }}
+                                <label for="genderInput">Gender</label>
+                                {% for error in form.gender.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <!-- Password -->
+                        <div class="col-md-6 mb-3">
+                            <div class="form-floating">
+                                {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), id="passwordInput", placeholder="Password") }}
+                                <label for="passwordInput">Password</label>
+                                {% for error in form.password.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <!-- Confirm Password -->
+                        <div class="col-md-6 mb-4">
+                            <div class="form-floating">
+                                {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else ""), id="confirmPasswordInput", placeholder="Confirm Password") }}
+                                <label for="confirmPasswordInput">Confirm Password</label>
+                                {% for error in form.confirm_password.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {{ form.submit(class="btn btn-primary w-100 py-3 fw-bold btn-lg mb-3") }}
+                    
+                    <div class="text-center text-muted text-sm">
+                        Already have an account? <a href="{{ url_for('auth.login') }}" class="text-decoration-none fw-bold">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

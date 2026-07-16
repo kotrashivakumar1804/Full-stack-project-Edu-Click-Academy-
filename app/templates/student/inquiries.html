@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}My Inquiries - Student Portal{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card mb-4 p-4 rounded-4 position-relative overflow-hidden border-0 shadow-md">
+    <div class="row align-items-center">
+        <div class="col-md-8">
+            <span class="badge bg-secondary mb-2 text-uppercase fw-bold text-xs"><i class="bi bi-chat-dots-fill"></i> Communication Center</span>
+            <h1 class="display-6 fw-extrabold font-heading mb-1 text-white">My Inquiries</h1>
+            <p class="text-white-50 text-sm mb-0">Ask questions about courses and track admin replies in real-time.</p>
+        </div>
+        <div class="col-md-4 text-md-end d-none d-md-block">
+            <div class="bg-white-10 rounded-circle p-3 d-inline-flex justify-content-center align-items-center" style="width:80px;height:80px;background:rgba(255,255,255,0.1);">
+                <i class="bi bi-chat-left-text-fill text-white fs-1"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- LEFT: New Inquiry Form -->
+    <div class="col-lg-5">
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4 sticky-lg-top" style="top:90px;">
+            <h4 class="font-heading fw-bold mb-1"><i class="bi bi-plus-circle-fill text-primary me-2"></i>New Inquiry</h4>
+            <p class="text-muted text-xs mb-4">Have a question about a course? Send it here and we'll reply as soon as possible.</p>
+            
+            <form method="POST" action="{{ url_for('student.inquiries') }}" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-xs text-dark mb-1">{{ form.course_id.label.text }}</label>
+                    {{ form.course_id(class="form-select" + (" is-invalid" if form.course_id.errors else ""), id="inquiry_course_id") }}
+                    {% for error in form.course_id.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label fw-semibold text-xs text-dark mb-1">{{ form.subject.label.text }}</label>
+                    {{ form.subject(class="form-control" + (" is-invalid" if form.subject.errors else ""), placeholder="e.g. Query about course duration, fees...") }}
+                    {% for error in form.subject.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label fw-semibold text-xs text-dark mb-1">{{ form.message.label.text }}</label>
+                    {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), placeholder="Describe your question or concern in detail...", rows=5) }}
+                    {% for error in form.message.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
+                    <i class="bi bi-send-fill me-2"></i>Submit Inquiry
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RIGHT: Inquiry List -->
+    <div class="col-lg-7">
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="font-heading fw-bold mb-0">Your Inquiries</h4>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 fw-bold">{{ inquiries|length }} Total</span>
+            </div>
+
+            {% if inquiries %}
+                <div class="d-flex flex-column gap-3">
+                    {% for item in inquiries %}
+                        <a href="{{ url_for('student.inquiry_detail', inquiry_id=item.inquiry_id) }}"
+                           class="text-decoration-none">
+                            <div class="border rounded-3 p-3 hover-card position-relative"
+                                 style="transition: all 0.2s; cursor:pointer;"
+                                 onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#f8f9ff';"
+                                 onmouseout="this.style.borderColor=''; this.style.background='';">
+                                
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="flex-grow-1 me-3">
+                                        <h6 class="fw-bold text-dark mb-1">{{ item.subject }}</h6>
+                                        <small class="text-muted text-xs">
+                                            <i class="bi bi-journal-bookmark-fill text-primary me-1"></i>
+                                            {{ item.course.course_name }}
+                                        </small>
+                                    </div>
+                                    <div class="text-end flex-shrink-0">
+                                        {% if item.status == 'Replied' %}
+                                            <span class="badge bg-success-subtle text-success fw-bold">
+                                                <i class="bi bi-check-circle-fill me-1"></i>Replied
+                                            </span>
+                                        {% elif item.status == 'Closed' %}
+                                            <span class="badge bg-secondary-subtle text-secondary fw-bold">
+                                                <i class="bi bi-x-circle-fill me-1"></i>Closed
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-warning-subtle text-warning fw-bold">
+                                                <i class="bi bi-hourglass-split me-1"></i>Pending
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <p class="text-muted text-xs mb-2" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                    {{ item.message[:100] }}{% if item.message|length > 100 %}...{% endif %}
+                                </p>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted text-xxs">
+                                        <i class="bi bi-clock me-1"></i>{{ item.created_at.strftime('%d %b %Y, %I:%M %p') }}
+                                    </small>
+                                    <small class="text-primary text-xs fw-semibold">
+                                        {% if item.replies|length > 0 %}
+                                            <i class="bi bi-chat-fill me-1"></i>{{ item.replies|length }} message{{ 's' if item.replies|length > 1 else '' }}
+                                        {% else %}
+                                            <i class="bi bi-chat me-1"></i>No replies yet
+                                        {% endif %}
+                                    </small>
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-chat-left-x display-4 text-muted mb-3 d-block"></i>
+                    <h5 class="font-heading mb-2">No Inquiries Yet</h5>
+                    <p class="text-muted mb-0">Use the form on the left to send your first inquiry.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Pre-select course if passed in URL
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('course_id');
+    if (courseId) {
+        const sel = document.getElementById('inquiry_course_id');
+        if (sel) sel.value = courseId;
+    }
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">My Notifications</h1>
+    <p class="text-secondary-emphasis mb-0">Stay updated on course launches, password changes, and enrollment status updates.</p>
+</div>
+
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    <h3 class="font-heading fw-bold mb-4">Notification Inbox</h3>
+    
+    {% if notifications %}
+        <div class="list-group list-group-flush">
+            {% for item in notifications %}
+                <div class="list-group-item py-3 {% if not item.is_read %}bg-light-subtleborder-start border-primary border-4{% endif %}">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center mb-1">
+                                <h5 class="font-heading h6 fw-bold mb-0 text-dark me-2">{{ item.title }}</h5>
+                                {% if not item.is_read %}
+                                    <span class="badge bg-primary text-xs">New</span>
+                                {% endif %}
+                            </div>
+                            <small class="text-muted d-block mb-2" style="font-size:11px;">
+                                <i class="bi bi-clock me-1"></i> {{ item.created_at.strftime('%Y-%m-%d %H:%M') }}
+                            </small>
+                            <p class="text-muted text-sm mb-0">{{ item.message }}</p>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2 ms-3">
+                            {% if not item.is_read %}
+                                <a href="{{ url_for('student.mark_read', notification_id=item.notification_id) }}" class="btn btn-outline-primary btn-xs" title="Mark as Read">
+                                    <i class="bi bi-check"></i>
+                                </a>
+                            {% endif %}
+                            
+                            <form action="{{ url_for('student.delete_notification', notification_id=item.notification_id) }}" method="POST" class="no-loader">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger btn-xs" title="Delete Alert">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-bell-slash display-5 text-muted mb-3 d-block"></i>
+            <h4 class="font-heading mb-2">No Notifications</h4>
+            <p class="text-muted mb-0">Your inbox is completely clear.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

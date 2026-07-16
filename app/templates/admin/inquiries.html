@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Inquiries - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">Student Inquiries</h1>
+    <p class="text-secondary-emphasis mb-0">View and respond to student questions about courses.</p>
+</div>
+
+<!-- Filters -->
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white mb-4">
+    <form action="{{ url_for('admin.manage_inquiries') }}" method="GET" class="no-loader">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label text-xs fw-bold text-muted mb-1">Filter by Course</label>
+                <select name="course_id" class="form-select form-select-sm">
+                    <option value="">All Courses</option>
+                    {% for c in courses %}
+                        <option value="{{ c.course_id }}" {% if course_filter == c.course_id %}selected{% endif %}>
+                            {{ c.course_name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label text-xs fw-bold text-muted mb-1">Filter by Status</label>
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">All Statuses</option>
+                    <option value="Pending" {% if status_filter == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Replied" {% if status_filter == 'Replied' %}selected{% endif %}>Replied</option>
+                    <option value="Closed" {% if status_filter == 'Closed' %}selected{% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
+                    <i class="bi bi-filter me-1"></i>Apply Filter
+                </button>
+                <a href="{{ url_for('admin.manage_inquiries') }}" class="btn btn-outline-secondary btn-sm">Clear</a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Inquiry List -->
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    {% if inquiries %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle" id="inquiriesTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="text-xs fw-bold text-muted">#</th>
+                        <th class="text-xs fw-bold text-muted">Student</th>
+                        <th class="text-xs fw-bold text-muted">Course</th>
+                        <th class="text-xs fw-bold text-muted">Subject</th>
+                        <th class="text-xs fw-bold text-muted">Date</th>
+                        <th class="text-xs fw-bold text-muted">Status</th>
+                        <th class="text-xs fw-bold text-muted">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in inquiries %}
+                        <tr>
+                            <td class="text-muted text-xs">{{ item.inquiry_id }}</td>
+                            <td>
+                                {% if item.student %}
+                                    <div class="fw-semibold text-sm text-dark">{{ item.student.full_name }}</div>
+                                    <small class="text-muted text-xxs">{{ item.student.email }}</small>
+                                    <span class="badge bg-primary-subtle text-primary text-xxs px-2 py-0.5 mt-1 d-inline-block">Student</span>
+                                {% else %}
+                                    <div class="fw-semibold text-sm text-dark">{{ item.name }}</div>
+                                    <small class="text-muted text-xxs d-block">{{ item.email }}</small>
+                                    {% if item.mobile %}
+                                        <small class="text-muted text-xxs d-block"><i class="bi bi-telephone"></i> {{ item.mobile }}</small>
+                                    {% endif %}
+                                    <span class="badge bg-warning-subtle text-warning-emphasis text-xxs px-2 py-0.5 mt-1 d-inline-block">Visitor</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.course %}
+                                    <span class="badge bg-secondary-subtle text-secondary text-xs">
+                                        {{ item.course.course_name[:30] }}{% if item.course.course_name|length > 30 %}...{% endif %}
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-dark-subtle text-dark text-xs">General Inquiry</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-sm text-dark" style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                {{ item.subject }}
+                            </td>
+                            <td class="text-xs text-muted">{{ item.created_at.strftime('%d %b %Y') }}</td>
+                            <td>
+                                {% if item.status == 'Replied' %}
+                                    <span class="badge bg-success-subtle text-success fw-bold">Replied</span>
+                                {% elif item.status == 'Closed' %}
+                                    <span class="badge bg-secondary-subtle text-secondary fw-bold">Closed</span>
+                                {% else %}
+                                    <span class="badge bg-warning-subtle text-warning fw-bold">Pending</span>
+                                {% endif %}
+                                <small class="text-muted text-xxs d-block mt-1">
+                                    <i class="bi bi-chat-fill me-1"></i>{{ item.replies|length }} repl{{ 'ies' if item.replies|length != 1 else 'y' }}
+                                </small>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{{ url_for('admin.inquiry_detail', inquiry_id=item.inquiry_id) }}"
+                                       class="btn btn-primary btn-xs">
+                                        <i class="bi bi-reply-fill"></i> View/Reply
+                                    </a>
+                                    <form action="{{ url_for('admin.delete_inquiry', inquiry_id=item.inquiry_id) }}"
+                                          method="POST" class="no-loader m-0"
+                                          onsubmit="return confirm('Delete this inquiry and all its replies?')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-xs">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+            <nav class="mt-3">
+                <ul class="pagination pagination-sm justify-content-center mb-0">
+                    {% if pagination.has_prev %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.manage_inquiries', page=pagination.prev_num, course_id=course_filter, status=status_filter) }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% for p in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if p %}
+                            <li class="page-item {% if p == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.manage_inquiries', page=p, course_id=course_filter, status=status_filter) }}">{{ p }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if pagination.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="{{ url_for('admin.manage_inquiries', page=pagination.next_num, course_id=course_filter, status=status_filter) }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-chat-left-x display-4 text-muted d-block mb-3"></i>
+            <h5 class="font-heading mb-2">No Inquiries Found</h5>
+            <p class="text-muted">No student inquiries match the current filters.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

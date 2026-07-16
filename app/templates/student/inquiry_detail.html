@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+
+{% block title %}Inquiry: {{ inquiry.subject }} - Student Portal{% endblock %}
+
+{% block portal_content %}
+<!-- Header -->
+<div class="gradient-card mb-4 p-4 rounded-4 position-relative overflow-hidden border-0 shadow-md">
+    <div class="row align-items-center">
+        <div class="col">
+            <a href="{{ url_for('student.inquiries') }}" class="btn btn-sm btn-outline-light mb-2">
+                <i class="bi bi-arrow-left me-1"></i> Back to Inquiries
+            </a>
+            <h1 class="h4 fw-extrabold font-heading mb-1 text-white">{{ inquiry.subject }}</h1>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <span class="badge bg-white text-primary fw-bold">
+                    <i class="bi bi-journal-bookmark-fill me-1"></i>{{ inquiry.course.course_name }}
+                </span>
+                {% if inquiry.status == 'Replied' %}
+                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Replied</span>
+                {% elif inquiry.status == 'Closed' %}
+                    <span class="badge bg-secondary"><i class="bi bi-x-circle-fill me-1"></i>Closed</span>
+                {% else %}
+                    <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i>Pending</span>
+                {% endif %}
+                <small class="text-white-50 text-xs"><i class="bi bi-clock me-1"></i>{{ inquiry.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Chat Thread -->
+    <div class="col-lg-8">
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4">
+            <h5 class="font-heading fw-bold mb-4"><i class="bi bi-chat-text-fill text-primary me-2"></i>Conversation Thread</h5>
+            
+            <div class="d-flex flex-column gap-4" id="chatThread">
+                <!-- Original Student Message -->
+                <div class="d-flex align-items-start gap-3">
+                    <div class="flex-shrink-0 bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
+                         style="width:40px;height:40px;">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold text-sm text-primary">You (Student)</span>
+                            <small class="text-muted text-xxs">{{ inquiry.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                        </div>
+                        <div class="p-3 rounded-3 bg-light text-dark text-sm" style="white-space: pre-line;">{{ inquiry.message }}</div>
+                    </div>
+                </div>
+
+                <!-- Replies in order -->
+                {% for reply in inquiry.replies %}
+                    {% if reply.sender_role == 'student' %}
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="flex-shrink-0 bg-primary text-white rounded-circle d-flex justify-content-center align-items-center"
+                                 style="width:40px;height:40px;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold text-sm text-primary">You (Student)</span>
+                                    <small class="text-muted text-xxs">{{ reply.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                                </div>
+                                <div class="p-3 rounded-3 bg-light text-dark text-sm" style="white-space: pre-line;">{{ reply.message }}</div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="d-flex align-items-start gap-3 flex-row-reverse">
+                            <div class="flex-shrink-0 rounded-circle d-flex justify-content-center align-items-center text-white"
+                                 style="width:40px;height:40px;background:linear-gradient(135deg,#4f46e5,#7c3aed);">
+                                <i class="bi bi-shield-lock-fill"></i>
+                            </div>
+                            <div class="flex-grow-1 text-end">
+                                <div class="d-flex justify-content-between align-items-center mb-1 flex-row-reverse">
+                                    <span class="fw-bold text-sm" style="color:#4f46e5;"><i class="bi bi-patch-check-fill me-1"></i>Admin / Instructor</span>
+                                    <small class="text-muted text-xxs">{{ reply.created_at.strftime('%d %b %Y, %I:%M %p') }}</small>
+                                </div>
+                                <div class="p-3 rounded-3 text-dark text-sm text-start"
+                                     style="white-space: pre-line; background:rgba(79,70,229,0.08); border:1px solid rgba(79,70,229,0.2);">{{ reply.message }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% if not inquiry.replies %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-hourglass display-5 d-block mb-2"></i>
+                        <small>No replies yet. The admin will respond soon.</small>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Reply Box (only if not closed) -->
+            {% if inquiry.status != 'Closed' %}
+                <hr class="my-4">
+                <h6 class="fw-bold mb-3">Send a Follow-up Message</h6>
+                <form method="POST" action="{{ url_for('student.inquiry_detail', inquiry_id=inquiry.inquiry_id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <textarea name="reply_message" class="form-control mb-3"
+                              rows="3" placeholder="Type your follow-up message..."
+                              style="font-size:13px;" required></textarea>
+                    <button type="submit" class="btn btn-primary fw-bold px-4">
+                        <i class="bi bi-send-fill me-2"></i>Send Reply
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert alert-secondary mt-4 mb-0 text-center text-sm">
+                    <i class="bi bi-lock-fill me-2"></i>This inquiry has been closed. Please create a new inquiry if you have further questions.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="col-lg-4">
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4">
+            <h6 class="font-heading fw-bold mb-3 text-dark">Inquiry Details</h6>
+            <dl class="row text-xs mb-0">
+                <dt class="col-5 text-muted">Course</dt>
+                <dd class="col-7 fw-semibold text-dark">{{ inquiry.course.course_name }}</dd>
+                <dt class="col-5 text-muted">Status</dt>
+                <dd class="col-7">
+                    {% if inquiry.status == 'Replied' %}
+                        <span class="badge bg-success">Replied</span>
+                    {% elif inquiry.status == 'Closed' %}
+                        <span class="badge bg-secondary">Closed</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </dd>
+                <dt class="col-5 text-muted">Submitted</dt>
+                <dd class="col-7 text-dark">{{ inquiry.created_at.strftime('%d %b %Y') }}</dd>
+                <dt class="col-5 text-muted">Messages</dt>
+                <dd class="col-7 text-dark">{{ inquiry.replies|length + 1 }}</dd>
+            </dl>
+        </div>
+
+        <div class="card border border-light rounded-4 shadow-sm bg-white p-4 mt-3">
+            <h6 class="font-heading fw-bold mb-3 text-dark">Ready to Enroll?</h6>
+            <p class="text-muted text-xs mb-3">Once your questions are answered, you can enroll directly from the course page.</p>
+            <a href="{{ url_for('student.contact_instructor', course_id=inquiry.course_id) }}" class="btn btn-success w-100 fw-bold">
+                <i class="bi bi-journal-check me-2"></i>Enroll in this Course
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

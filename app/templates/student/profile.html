@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">My Profile</h1>
+    <p class="text-secondary-emphasis mb-0">View your registration details and keep your information up to date.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Profile Visual Side Card -->
+    <div class="col-md-4">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white text-center">
+            <div class="profile-pic-container mb-3" style="width: 150px; height: 150px;">
+                <img src="{{ url_for('static', filename=current_user.profile_picture) }}" alt="Profile Photo">
+            </div>
+            
+            <h3 class="font-heading fw-bold h5 mb-2">{{ current_user.full_name }}</h3>
+            <p class="text-muted text-sm mb-3">Joined: {{ current_user.created_at.strftime('%Y-%m-%d') }}</p>
+            
+            <div class="my-3 text-start">
+                <div class="d-flex justify-content-between mb-1">
+                    <small class="text-muted text-xs">Profile Completion</small>
+                    <small class="fw-bold text-xs text-primary">{{ profile_completion }}%</small>
+                </div>
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ profile_completion }}%" aria-valuenow="{{ profile_completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+            </div>
+            
+            <hr class="my-3">
+            <div class="d-flex flex-column gap-2">
+                <a href="{{ url_for('student.edit_profile') }}" class="btn btn-primary w-100 py-2"><i class="bi bi-pencil-square me-2"></i>Edit Profile Info</a>
+                <a href="{{ url_for('student.change_password') }}" class="btn btn-outline-secondary w-100 py-2"><i class="bi bi-shield-lock me-2"></i>Change Password</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Details Grid -->
+    <div class="col-md-8">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+            <h3 class="font-heading fw-bold mb-4">Account Information</h3>
+            
+            <div class="table-responsive">
+                <table class="table table-borderless align-middle">
+                    <tbody>
+                        <tr class="border-bottom">
+                            <td class="text-muted py-3" style="width: 30%;"><i class="bi bi-person me-2 text-primary"></i> Full Name</td>
+                            <td class="fw-bold py-3">{{ current_user.full_name }}</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-muted py-3"><i class="bi bi-envelope me-2 text-primary"></i> Email Address</td>
+                            <td class="fw-bold py-3">{{ current_user.email }}</td>
+                        </tr>
+                        <tr class="border-bottom">
+                            <td class="text-muted py-3"><i class="bi bi-phone me-2 text-primary"></i> Mobile Number</td>
+                            <td class="fw-bold py-3">{{ current_user.mobile }}</td>
+                        </tr>
+
+                        <tr>
+                            <td class="text-muted py-3"><i class="bi bi-gender-ambiguous me-2 text-primary"></i> Gender</td>
+                            <td class="fw-bold py-3">{{ current_user.gender }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

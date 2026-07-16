@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}About Our Portal - Student Course Management Portal{% endblock %}
+
+{% block content %}
+{% block portal_content %}
+<!-- Header Banner -->
+<section class="hero-section text-center py-5 mb-5">
+    <div class="container py-3">
+        <h1 class="display-5 fw-extrabold font-heading text-white mb-3">About the Portal</h1>
+        <p class="lead text-light mb-0">Discover our goals, custom enrollment workflow, and administrative features.</p>
+    </div>
+</section>
+
+<!-- Content Block -->
+<div class="container mb-5">
+    <div class="row g-5 align-items-center mb-5">
+        <div class="col-md-6">
+            <span class="text-uppercase fw-bold text-primary text-xs d-block mb-2">Our Mission</span>
+            <h2 class="font-heading fw-bold mb-4">A Streamlined Platform for Academic Course Coordination</h2>
+            <p class="text-muted">
+                Our Student Course Management Portal is designed to make searching, registering, and managing coursework completely transparent. Underpinned by standard Python/Flask backend mechanics and a secure relational database, our portal coordinates the entire enrollment lifecycle seamlessly.
+            </p>
+            <p class="text-muted">
+                Whether you are a student wanting to upskill or an administrator auditing registrations, courses, and fee reports, we provide the ultimate interface to meet your administrative needs.
+            </p>
+        </div>
+        <div class="col-md-6">
+            <div class="p-4 bg-white border border-light shadow-sm rounded-4">
+                <h4 class="font-heading mb-3"><i class="bi bi-shield-check text-success me-2"></i>Security Focused Architecture</h4>
+                <p class="text-muted text-sm mb-3">
+                    We maintain secure portals using robust password hashing, dual session managers (separating students and admins), CSRF verification, and database query bindings.
+                </p>
+                <h4 class="font-heading mb-3"><i class="bi bi-clock-history text-secondary me-2"></i>Workflow Driven Enrollments</h4>
+                <p class="text-muted text-sm mb-0">
+                    Students search courses and initiate conversations with instructors. After making a payment, payment details are submitted through the portal, validated by an administrator, and instantly approved.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Workflow Map -->
+    <div class="bg-light p-5 rounded-4 border border-light shadow-sm mb-5 text-center">
+        <h3 class="font-heading fw-bold mb-4">Enrollment Workflow Cycle</h3>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-2">
+                <div class="card border-0 bg-white p-3 shadow-sm h-100">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex justify-content-center align-items-center" style="width:30px; height:30px;">1</span>
+                    <h5 class="font-heading h6 mb-1">Select Course</h5>
+                    <p class="text-xs text-muted mb-0">Find a curriculum that matches your goals.</p>
+                </div>
+            </div>
+            <div class="col-md-1 d-none d-md-flex align-items-center justify-content-center">
+                <i class="bi bi-arrow-right fs-3 text-muted"></i>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 bg-white p-3 shadow-sm h-100">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex justify-content-center align-items-center" style="width:30px; height:30px;">2</span>
+                    <h5 class="font-heading h6 mb-1">Contact Admin</h5>
+                    <p class="text-xs text-muted mb-0">Submit inquiry to request details.</p>
+                </div>
+            </div>
+            <div class="col-md-1 d-none d-md-flex align-items-center justify-content-center">
+                <i class="bi bi-arrow-right fs-3 text-muted"></i>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 bg-white p-3 shadow-sm h-100">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex justify-content-center align-items-center" style="width:30px; height:30px;">3</span>
+                    <h5 class="font-heading h6 mb-1">Submit Payment</h5>
+                    <p class="text-xs text-muted mb-0">Make payment & enter reference code.</p>
+                </div>
+            </div>
+            <div class="col-md-1 d-none d-md-flex align-items-center justify-content-center">
+                <i class="bi bi-arrow-right fs-3 text-muted"></i>
+            </div>
+            <div class="col-md-2">
+                <div class="card border-0 bg-white p-3 shadow-sm h-100">
+                    <span class="badge bg-primary rounded-circle mx-auto mb-3 d-flex justify-content-center align-items-center" style="width:30px; height:30px;">4</span>
+                    <h5 class="font-heading h6 mb-1">Admin Approves</h5>
+                    <p class="text-xs text-muted mb-0">Immediate activation and notification.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% endblock %}

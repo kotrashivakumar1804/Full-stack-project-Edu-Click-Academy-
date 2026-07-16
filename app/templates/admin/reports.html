@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Audit Reports Center - Control Panel{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">Audit & Reports Center</h1>
+    <p class="text-secondary-emphasis mb-0">Generate, compile, and download formal database records in PDF and Excel formats.</p>
+</div>
+
+<div class="row g-4">
+    <!-- Card 1: Student Registry Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white h-100 d-flex flex-column text-center">
+            <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex justify-content-center align-items-center mb-3 mx-auto" style="width: 50px; height: 50px;">
+                <i class="bi bi-people fs-4"></i>
+            </div>
+            <h4 class="font-heading fw-bold mb-2 h5">Student Registry</h4>
+            <p class="text-xs text-muted mb-4 flex-grow-1">Contains full student registry list (IDs, Names, DOB, registration dates, gender, emails).</p>
+            <div class="d-flex flex-column gap-2 mt-auto">
+                <a href="{{ url_for('admin.export_report', type='student', format='pdf') }}" class="btn btn-outline-primary btn-sm py-2">
+                    <i class="bi bi-file-pdf me-1"></i> Export PDF
+                </a>
+                <a href="{{ url_for('admin.export_report', type='student', format='excel') }}" class="btn btn-outline-secondary btn-sm py-2">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card 2: Course Catalog Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white h-100 d-flex flex-column text-center">
+            <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex justify-content-center align-items-center mb-3 mx-auto" style="width: 50px; height: 50px;">
+                <i class="bi bi-journal-bookmark-fill fs-4"></i>
+            </div>
+            <h4 class="font-heading fw-bold mb-2 h5">Course Catalog</h4>
+            <p class="text-xs text-muted mb-4 flex-grow-1">Contains catalog information including fees, duration, instructor emails, status, and enrollment tallies.</p>
+            <div class="d-flex flex-column gap-2 mt-auto">
+                <a href="{{ url_for('admin.export_report', type='course', format='pdf') }}" class="btn btn-outline-primary btn-sm py-2">
+                    <i class="bi bi-file-pdf me-1"></i> Export PDF
+                </a>
+                <a href="{{ url_for('admin.export_report', type='course', format='excel') }}" class="btn btn-outline-secondary btn-sm py-2">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card 3: Enrollment Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white h-100 d-flex flex-column text-center">
+            <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex justify-content-center align-items-center mb-3 mx-auto" style="width: 50px; height: 50px;">
+                <i class="bi bi-credit-card fs-4"></i>
+            </div>
+            <h4 class="font-heading fw-bold mb-2 h5">Enrollment & Payments</h4>
+            <p class="text-xs text-muted mb-4 flex-grow-1">Lists active class admissions, payment references, student matching, and dates.</p>
+            <div class="d-flex flex-column gap-2 mt-auto">
+                <a href="{{ url_for('admin.export_report', type='enrollment', format='pdf') }}" class="btn btn-outline-primary btn-sm py-2">
+                    <i class="bi bi-file-pdf me-1"></i> Export PDF
+                </a>
+                <a href="{{ url_for('admin.export_report', type='enrollment', format='excel') }}" class="btn btn-outline-secondary btn-sm py-2">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Card 4: Messages Report -->
+    <div class="col-md-6 col-lg-3">
+        <div class="card border border-light p-4 rounded-4 shadow-sm bg-white h-100 d-flex flex-column text-center">
+            <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex justify-content-center align-items-center mb-3 mx-auto" style="width: 50px; height: 50px;">
+                <i class="bi bi-chat-left-text fs-4"></i>
+            </div>
+            <h4 class="font-heading fw-bold mb-2 h5">Contact Messages</h4>
+            <p class="text-xs text-muted mb-4 flex-grow-1">Summarizes customer inquiries, sender details, creation timestamps, and replied statuses.</p>
+            <div class="d-flex flex-column gap-2 mt-auto">
+                <a href="{{ url_for('admin.export_report', type='contact', format='pdf') }}" class="btn btn-outline-primary btn-sm py-2">
+                    <i class="bi bi-file-pdf me-1"></i> Export PDF
+                </a>
+                <a href="{{ url_for('admin.export_report', type='contact', format='excel') }}" class="btn btn-outline-secondary btn-sm py-2">
+                    <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

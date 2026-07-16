@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Messages - Portal Admin{% endblock %}
+
+{% block portal_content %}
+<div class="gradient-card">
+    <h1 class="display-6 fw-bold font-heading mb-2">Support Tickets Inbox</h1>
+    <p class="text-secondary-emphasis mb-0">Browse student feedback/inquiries, reply to messages, and audit communications.</p>
+</div>
+
+<div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+    <!-- Search Box -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-lg-5">
+            <form action="{{ url_for('admin.manage_messages') }}" method="GET" class="no-loader">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="q" class="form-control border-start-0 bg-light" placeholder="Search by name, email or subject..." value="{{ search_query }}">
+                    <button type="submit" class="btn btn-primary btn-sm px-3">Search</button>
+                </div>
+                {% if search_query %}
+                    <div class="mt-1">
+                        <small class="text-muted">Filtered results for "{{ search_query }}". <a href="{{ url_for('admin.manage_messages') }}">Clear filter</a></small>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Messages List -->
+    {% if messages %}
+        <div class="list-group list-group-flush border rounded-3 overflow-hidden shadow-sm">
+            {% for item in messages %}
+                <div class="list-group-item p-4 {% if not item.admin_reply %}bg-light-subtle{% endif %}">
+                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <span class="badge {% if item.admin_reply %}bg-success{% else %}bg-warning text-dark{% endif %} mb-2">
+                                {% if item.admin_reply %}Replied{% else %}Pending Reply{% endif %}
+                            </span>
+                            <h4 class="font-heading h5 fw-bold mb-1">{{ item.subject }}</h4>
+                            <small class="text-muted">
+                                From: <strong>{{ item.name }}</strong> ({{ item.email }}) | Date: {{ item.created_at.strftime('%Y-%m-%d %H:%M') }}
+                            </small>
+                        </div>
+                        
+                        <div class="d-flex align-items-center gap-2">
+                            <!-- Reply Trigger Button (if not replied) -->
+                            {% if not item.admin_reply %}
+                                <button class="btn btn-primary btn-xs" type="button" data-bs-toggle="collapse" data-bs-target="#replyForm_{{ item.message_id }}" aria-expanded="false" aria-controls="replyForm_{{ item.message_id }}">
+                                    <i class="bi bi-reply-fill"></i> Reply
+                                </button>
+                            {% endif %}
+                            
+                            <!-- Delete Message -->
+                            <form action="{{ url_for('admin.delete_message', message_id=item.message_id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this message?');" class="no-loader m-0">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" class="btn btn-outline-danger btn-xs">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Message Body -->
+                    <div class="p-3 bg-light rounded-3 mb-3 text-muted text-sm border-start border-primary border-3" style="white-space: pre-line;">
+                        {{ item.message }}
+                    </div>
+                    
+                    <!-- Replied Message Display -->
+                    {% if item.admin_reply %}
+                        <div class="ms-4 p-3 bg-success-subtle rounded-3 text-sm text-dark border-start border-success border-3">
+                            <span class="d-block fw-bold mb-1 text-success"><i class="bi bi-check-circle-fill me-1"></i> Admin Reply:</span>
+                            <p class="mb-0" style="white-space: pre-line;">{{ item.admin_reply }}</p>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Reply Form (Collapsible) -->
+                    {% if not item.admin_reply %}
+                        <div class="collapse ms-4 mt-2" id="replyForm_{{ item.message_id }}">
+                            <div class="card p-3 border-light bg-light shadow-xs">
+                                <h6 class="font-heading fw-bold mb-2">Write Reply to {{ item.name }}</h6>
+                                
+                                <form action="{{ url_for('admin.reply_message', message_id=item.message_id) }}" method="POST">
+                                    {{ form.csrf_token }}
+                                    
+                                    <div class="mb-3">
+                                        {{ form.reply_message(class="form-control form-control-sm", placeholder="Type message content...", rows=3, style="height:80px;") }}
+                                        {% for error in form.reply_message.errors %}
+                                            <div class="invalid-feedback d-block text-xs">{{ error }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    
+                                    <div class="text-end">
+                                        {{ form.submit(class="btn btn-primary btn-xs py-1 px-3") }}
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-chat-left-x display-6 mb-3 d-block text-secondary"></i>
+            No support message entries found.
+        </div>
+    {% endif %}
+
+    <!-- Table Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+        <nav aria-label="Messages list pagination" class="mt-4">
+            <ul class="pagination justify-content-center mb-0">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_messages', q=search_query, page=pagination.prev_num) }}">Previous</a>
+                </li>
+                {% for page_num in pagination.iter_pages() %}
+                    {% if page_num %}
+                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('admin.manage_messages', q=search_query, page=page_num) }}">{{ page_num }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('admin.manage_messages', q=search_query, page=pagination.next_num) }}">Next</a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+</div>
+{% endblock %}

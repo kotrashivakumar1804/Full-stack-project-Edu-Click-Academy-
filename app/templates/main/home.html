@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Student Course Management Portal{% endblock %}
+
+{% block content %}
+{% block portal_content %}
+<!-- Hero Section -->
+<section class="hero-section text-center text-md-start">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-md-7">
+                <span class="badge bg-primary px-3 py-2 mb-3 text-uppercase fw-bold">Empower Your Learning</span>
+                <h1 class="display-4 fw-extrabold font-heading mb-4 text-white">
+                    Unlock Your Potential with Our Professional Courses
+                </h1>
+                <p class="lead text-light mb-4">
+                    Explore high-quality, instructor-led courses built to master in-demand industry skills. Discuss enrollments directly with instructors, process payments, and track progress.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{{ url_for('main.courses') }}" class="btn btn-secondary btn-lg px-4 py-3 fw-bold">
+                        <i class="bi bi-search me-2"></i>Explore Courses
+                    </a>
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg px-4 py-3 fw-bold">
+                            Join as Student
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-5 text-center">
+                <img src="{{ url_for('static', filename='default_course.png') }}" alt="Learning" class="img-fluid rounded-4 shadow-lg border border-secondary" style="max-height: 380px; object-fit: cover;">
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Active Offer Banner (shows only when an offer is active) -->
+{% if active_offer and active_offer.discount_percent %}
+<section class="py-4" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="bg-white rounded-circle d-flex justify-content-center align-items-center flex-shrink-0"
+                     style="width:56px;height:56px;">
+                    <i class="bi bi-tag-fill text-warning fs-2"></i>
+                </div>
+                <div>
+                    <span class="badge bg-white text-warning fw-bold text-xs mb-1">🔥 LIMITED TIME OFFER</span>
+                    <h3 class="fw-extrabold text-white mb-0 font-heading">
+                        {{ active_offer.discount_percent|int }}% OFF on All Courses!
+                    </h3>
+                    <p class="text-white mb-0 text-sm opacity-90">{{ active_offer.title }}</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                {% if active_offer.expires_at %}
+                    <div class="text-white text-sm opacity-90">
+                        <i class="bi bi-clock me-1"></i>Expires: <strong>{{ active_offer.expires_at.strftime('%d %b %Y') }}</strong>
+                    </div>
+                {% endif %}
+                <a href="{{ url_for('main.courses') }}" class="btn fw-bold px-4 py-2 border-0"
+                   style="background:white; color:#d97706;">
+                    Enroll Now & Save <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Quick Stats Section -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h3 class="display-5 fw-bold text-primary font-heading">15+</h3>
+                    <p class="text-muted mb-0">Professional Curriculums</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h3 class="display-5 fw-bold text-secondary font-heading">1,200+</h3>
+                    <p class="text-muted mb-0">Active Students</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h3 class="display-5 fw-bold text-primary font-heading">98%</h3>
+                    <p class="text-muted mb-0">Approval Rating</p>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3">
+                    <h3 class="display-5 fw-bold text-secondary font-heading">24/7</h3>
+                    <p class="text-muted mb-0">Admin & Inquiry Support</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if announcements %}
+<!-- Special Offers & Announcements Section -->
+<section class="py-4 bg-primary text-white position-relative overflow-hidden" style="border-top: 1px solid rgba(255,255,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
+    <div class="container position-relative z-1">
+        <div class="row align-items-center">
+            <div class="col-lg-3 text-center text-lg-start mb-3 mb-lg-0">
+                <span class="badge bg-danger text-uppercase fw-bold text-xs px-3 py-2"><i class="bi bi-megaphone-fill"></i> Portal Highlights</span>
+            </div>
+            <div class="col-lg-9">
+                <div class="d-flex flex-column gap-2 text-center text-lg-start">
+                    {% for item in announcements %}
+                        <div class="p-2.5 rounded-3 bg-white-10 shadow-xs border-0" style="background: rgba(255,255,255,0.08); padding: 10px 14px;">
+                            <span class="fw-bold text-white text-sm"><i class="bi bi-gift-fill text-warning me-1"></i> {{ item.title }}:</span>
+                            <span class="text-white-50 text-xs ms-1">{{ item.description }}</span>
+                            <small class="text-white-50 text-xxs ms-2">({{ item.created_at.strftime('%Y-%m-%d') }})</small>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Featured Courses -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold font-heading mb-2">Featured Courses</h2>
+            <p class="text-muted">Start learning from our top-rated industry certifications today</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for course in featured_courses %}
+                <div class="col-md-4">
+                    <div class="card h-100 course-card">
+                        <img src="{{ url_for('static', filename=course.course_image) }}" class="card-img-top course-card-img" alt="{{ course.course_name }}">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex flex-wrap gap-1 mb-2">
+                                <span class="badge bg-secondary-subtle text-secondary">{{ course.duration }}</span>
+                                {% set price = course.current_price_details %}
+                                {% if price.has_offer %}
+                                    <span class="badge bg-warning text-dark fw-bold">
+                                        🔥 {{ price.discount_percent|int }}% OFF
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <h4 class="card-title font-heading h5 mb-3">{{ course.course_name }}</h4>
+                            <p class="card-text text-muted text-sm flex-grow-1">
+                                {{ course.description[:110] }}...
+                            </p>
+                            <hr class="my-3 border-light">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <small class="d-block text-muted text-xs">Instructor</small>
+                                    <span class="fw-bold text-sm">{{ course.instructor_name }}</span>
+                                </div>
+                                <div class="text-end">
+                                    <small class="d-block text-muted text-xs">Course Fee</small>
+                                    {% set price = course.current_price_details %}
+                                    {% if price.has_offer %}
+                                        <span class="text-muted text-decoration-line-through me-1 text-xs">₹{{ "%.2f"|format(price.original_fee) }}</span>
+                                        <span class="badge bg-danger text-xxs px-1.5 py-1 me-1">🔥 {{ price.discount_percent|int }}% OFF</span>
+                                        <span class="fw-extrabold text-success font-heading h5">₹{{ "%.2f"|format(price.discounted_fee) }}</span>
+                                    {% else %}
+                                        <span class="fw-extrabold text-primary font-heading h5">₹{{ "%.2f"|format(price.original_fee) }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <a href="{{ url_for('main.course_details', course_id=course.course_id) }}" class="btn btn-outline-primary w-100 mt-auto">
+                                View Details <i class="bi bi-arrow-right-short ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted">No courses are currently available. Check back soon!</p>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="{{ url_for('main.courses') }}" class="btn btn-primary px-4 py-2">
+                Browse All Courses <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- About Portal Call to Action -->
+<section class="py-5 bg-white">
+    <div class="container py-3">
+        <div class="row align-items-center g-5">
+            <div class="col-md-6">
+                <h2 class="display-6 fw-bold font-heading mb-4">Why Study with Us?</h2>
+                <div class="d-flex mb-4">
+                    <div class="bg-primary-subtle text-primary rounded-3 p-3 me-3 align-self-start">
+                        <i class="bi bi-mortarboard fs-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-heading h5 mb-2">Flexible Course Syllabi</h4>
+                        <p class="text-muted mb-0">Learn at your own pace. All courses offer clear durations, mock syllabus details, and contact access to tutors.</p>
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="bg-secondary-subtle text-secondary rounded-3 p-3 me-3 align-self-start">
+                        <i class="bi bi-person-check fs-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-heading h5 mb-2">Direct Instructor Channels</h4>
+                        <p class="text-muted mb-0">Connect with admins/instructors directly prior to enrollment, align on payment mechanisms, and get verified immediately.</p>
+                    </div>
+                </div>
+                <div class="d-flex">
+                    <div class="bg-primary-subtle text-primary rounded-3 p-3 me-3 align-self-start">
+                        <i class="bi bi-file-earmark-pdf fs-4"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-heading h5 mb-2">Certified Progress tracking</h4>
+                        <p class="text-muted mb-0">Receive instant portal notifications when payment status or enrollment status gets verified and updated.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 bg-light p-5 rounded-4 border border-light shadow-sm">
+                <h3 class="font-heading mb-4">Ready to Get Started?</h3>
+                <p class="text-muted mb-4">Create your student account, browse our comprehensive list of active professional courses, and kickstart your career now.</p>
+                {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-primary w-100 py-3 mb-2 fw-bold">Create Free Account</a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary w-100 py-3 fw-bold">Sign In to Dashboard</a>
+                {% else %}
+                    <a href="{{ url_for('student.dashboard') }}" class="btn btn-primary w-100 py-3 fw-bold">Access Student Dashboard</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+{% endblock %}

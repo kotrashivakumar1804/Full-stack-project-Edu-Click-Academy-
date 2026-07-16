@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}Enroll in {{ course.course_name }} - Edu Click Academy{% endblock %}
+
+{% block portal_content %}
+<div class="container py-4">
+    <!-- Header visual card -->
+    <div class="gradient-card mb-4 p-4 rounded-4 position-relative overflow-hidden border-0 shadow-md">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <span class="badge bg-secondary mb-2 text-uppercase fw-bold text-xs"><i class="bi bi-shield-lock-fill"></i> Secure Portal Checkout</span>
+                <h1 class="display-6 fw-extrabold font-heading mb-1 text-white">Enrollment & Inquiry Hub</h1>
+                <p class="text-white-50 text-sm mb-0">Select whether to send a question to the instructor or submit payment details to confirm enrollment.</p>
+            </div>
+            <div class="col-md-4 text-md-end d-none d-md-block">
+                <div class="bg-white-10 rounded-circle p-3 d-inline-flex justify-content-center align-items-center" style="width: 80px; height: 80px; background: rgba(255,255,255,0.1);">
+                    <i class="bi bi-wallet2 text-white fs-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column: Bank Details & Course Details Summary -->
+        <div class="col-lg-5">
+            <!-- Course Card summary with details -->
+            <div class="card border border-light p-4 rounded-4 shadow-sm bg-white mb-4">
+                <h4 class="font-heading fw-bold text-dark mb-3"><i class="bi bi-info-circle text-primary me-1"></i> Course Summary</h4>
+                
+                <!-- Display course image -->
+                <div class="rounded-3 overflow-hidden position-relative mb-3" style="height: 160px;">
+                    <img src="{{ url_for('static', filename=course.course_image) }}" alt="{{ course.course_name }}" class="w-100 h-100" style="object-fit: cover;">
+                    {% set price = course.current_price_details %}
+                    {% if price.has_offer %}
+                        <div class="position-absolute top-3 right-3 d-flex flex-column align-items-end gap-1">
+                            <span class="badge bg-danger text-white fw-bold fs-6">₹{{ "%.2f"|format(price.discounted_fee) }}</span>
+                            <span class="badge bg-warning text-dark fw-bold text-xxs">🔥 {{ price.discount_percent|int }}% OFF</span>
+                        </div>
+                    {% else %}
+                        <span class="position-absolute top-3 right-3 badge bg-dark text-white fw-bold fs-6">₹{{ "%.2f"|format(price.original_fee) }}</span>
+                    {% endif %}
+                </div>
+                
+                <h5 class="font-heading fw-bold mb-1 text-dark">{{ course.course_name }}</h5>
+                <p class="text-muted text-xs mb-3">{{ course.description }}</p>
+                
+                <div class="border-top pt-3 text-xs">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Instructor:</span>
+                        <span class="fw-bold text-dark">{{ course.instructor_name }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Duration:</span>
+                        <span class="fw-bold text-dark">{{ course.duration }}</span>
+                    </div>
+
+                    <!-- Fee row with discount -->
+                    <div class="d-flex justify-content-between mb-0 align-items-center">
+                        <span class="text-muted">Fee Payable:</span>
+                        <div class="text-end">
+                            {% if active_offer and active_offer.discount_percent %}
+                                <span class="text-muted text-decoration-line-through me-1 text-xs">₹{{ "%.2f"|format(original_fee) }}</span>
+                                <span class="badge bg-warning text-dark text-xxs me-1">🔥 {{ active_offer.discount_percent|int }}% OFF</span>
+                                <span class="fw-extrabold text-success font-heading fs-5">₹{{ "%.2f"|format(discounted_fee) }}</span>
+                            {% else %}
+                                <span class="fw-extrabold text-primary font-heading fs-5">₹{{ "%.2f"|format(original_fee) }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Offer Banner -->
+            {% if active_offer and active_offer.discount_percent %}
+            <div class="card border-0 rounded-4 shadow-sm mb-4 overflow-hidden" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <div class="p-4 text-white position-relative">
+                    <div class="position-absolute top-0 end-0 p-3 opacity-25">
+                        <i class="bi bi-tag-fill" style="font-size: 4rem;"></i>
+                    </div>
+                    <span class="badge bg-white text-warning fw-bold mb-2 text-xs">🔥 LIMITED OFFER</span>
+                    <h4 class="fw-extrabold font-heading mb-1">{{ active_offer.discount_percent|int }}% OFF Today!</h4>
+                    <p class="text-white mb-2 text-sm">{{ active_offer.title }}</p>
+                    <div class="d-flex align-items-center gap-2 mt-2">
+                        <span class="badge bg-white text-warning fw-bold px-3 py-2 fs-6">
+                            Save ₹{{ "%.2f"|format(discount_amount) }}
+                        </span>
+                        {% if active_offer.expires_at %}
+                            <small class="text-white-50"><i class="bi bi-clock me-1"></i>Expires: {{ active_offer.expires_at.strftime('%d %b %Y') }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Premium UPI QR Code Card -->
+            <div class="card border-0 p-4 rounded-4 shadow-sm bg-dark text-white position-relative overflow-hidden text-center">
+                <!-- Background visual blur decoration -->
+                <div class="position-absolute" style="width: 150px; height: 150px; background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(0,0,0,0) 70%); bottom: -50px; right: -50px;"></div>
+                
+                <h4 class="font-heading fw-bold text-white mb-2"><i class="bi bi-qr-code-scan text-success me-1"></i> Scan to Pay</h4>
+                <p class="text-secondary text-xs mb-4">Scan the QR code below using any UPI App (Google Pay, PhonePe, Paytm, Amazon Pay, BHIM) to pay the course fee.</p>
+                
+                <div class="d-inline-block bg-white p-3 rounded-4 mb-4 shadow-sm" style="max-width: 232px; margin: 0 auto;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ ('upi://pay?pa=12345678901@sbin.ifsc.npci&pn=Edu%20Click%20Academy&am=' ~ '%.2f'|format(discounted_fee) ~ '&cu=INR&tn=Enrollment%20' ~ course.course_name)|urlencode }}" 
+                         alt="UPI Payment QR Code" 
+                         class="img-fluid"
+                         style="width: 200px; height: 200px; display: block;">
+                </div>
+
+                <div class="mt-2">
+                    <span class="badge bg-success-subtle text-success px-3 py-2 fw-bold text-sm mb-1 d-inline-block">
+                        Payable Amount: ₹{{ "%.2f"|format(discounted_fee) }}
+                    </span>
+                    <p class="text-muted text-xxs mt-2 mb-0">After completing the payment, please enter the Transaction / UTR Reference ID and upload the receipt screenshot on the right to complete your enrollment.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Inquiry or Payment Enrollment Actions -->
+        <div class="col-lg-7">
+            <div class="d-flex flex-column gap-4">
+                
+                <!-- Action Panel 1: General Inquiry Form -->
+                <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+                    <h3 class="font-heading fw-bold mb-1 text-dark"><i class="bi bi-chat-left-dots text-primary me-1"></i> Send Course Inquiry</h3>
+                    <p class="text-muted text-xs mb-3">Have questions about syllabus, duration, or timing? Type your question and receive replies in your "My Inquiries" center.</p>
+                    
+                    <form action="{{ url_for('student.contact_instructor', course_id=course.course_id) }}" method="POST">
+                        {{ form.csrf_token }}
+                        <input type="hidden" name="action" value="inquiry">
+                        
+                        <div class="mb-3">
+                            {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), placeholder="Ask any question about this course to the instructor...", style="height: 100px; font-size: 13px;") }}
+                            {% for error in form.message.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-outline-primary px-4 py-2.5 fw-semibold text-xs text-uppercase">
+                            <i class="bi bi-send-fill me-1"></i> Send Inquiry Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Action Panel 2: Secure Payment & Enrollment Form -->
+                <div class="card border border-light p-4 rounded-4 shadow-sm bg-white">
+                    <h3 class="font-heading fw-bold mb-1 text-dark"><i class="bi bi-credit-card-2-front text-success me-1"></i> Confirm Payment & Enroll</h3>
+                    <p class="text-muted text-xs mb-3">Ready to register? Complete the SBI bank transfer and submit your transaction proof below to book your seat.</p>
+                    
+                    <form action="{{ url_for('student.contact_instructor', course_id=course.course_id) }}" method="POST" enctype="multipart/form-data">
+                        {{ form.csrf_token }}
+                        <input type="hidden" name="action" value="enroll">
+
+                        <!-- Transaction Reference -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark text-xs mb-1">Transaction / UTR Reference ID</label>
+                            <input type="text" name="txn_reference" class="form-control" placeholder="Enter SBI transaction reference ID or UTR number" required style="font-size: 13px; height: 44px;">
+                        </div>
+
+                        <!-- Screenshot Dropzone -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark text-xs mb-1">Upload Payment Receipt Screenshot</label>
+                            
+                            <div class="payment-upload-box mb-3" id="uploadBox" onclick="triggerFileInput()">
+                                <i class="bi bi-cloud-arrow-up display-6 text-muted mb-1 d-block"></i>
+                                <span class="fw-bold d-block text-dark text-xs" id="uploadBoxText">Click here to browse files</span>
+                                <small class="text-muted text-xxs">Supports PNG, JPG, JPEG, WEBP images</small>
+                                <input type="file" name="payment_screenshot" id="screenshotInput" class="d-none" accept="image/*" required onchange="handleFileSelected(this)">
+                            </div>
+
+                            <!-- Preview container -->
+                            <div class="upload-preview-container" id="previewContainer">
+                                <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                                    <span class="text-xs text-muted"><i class="bi bi-image"></i> Selected receipt file preview:</span>
+                                    <button type="button" class="btn btn-outline-danger btn-xs py-0 px-2 text-xs" onclick="resetFileSelection()">
+                                        <i class="bi bi-x-circle"></i> Remove
+                                    </button>
+                                </div>
+                                <img src="" alt="Payment Receipt Preview" class="upload-preview-img" id="previewImg">
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                            <a href="{{ url_for('main.course_details', course_id=course.course_id) }}" class="btn btn-outline-secondary px-3 py-2 fw-semibold text-xs">
+                                <i class="bi bi-arrow-left me-1"></i> Back to Course
+                            </a>
+                            <button type="submit" class="btn btn-success px-4 py-2.5 fw-bold text-white shadow-sm text-xs text-uppercase">
+                                <i class="bi bi-check-circle-fill me-1"></i> Confirm & Submit Enrollment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyText(elementId, button) {
+    const textToCopy = document.getElementById(elementId).innerText;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="bi bi-check-lg"></i> Copied!';
+        button.classList.remove('bg-secondary');
+        button.classList.add('bg-success');
+        
+        setTimeout(() => {
+            button.innerHTML = originalHTML;
+            button.classList.remove('bg-success');
+            button.classList.add('bg-secondary');
+        }, 1500);
+    });
+}
+
+function triggerFileInput() {
+    document.getElementById('screenshotInput').click();
+}
+
+function handleFileSelected(input) {
+    const file = input.files[0];
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImg = document.getElementById('previewImg');
+    const uploadBox = document.getElementById('uploadBox');
+    const uploadBoxText = document.getElementById('uploadBoxText');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            previewContainer.style.display = 'block';
+            uploadBoxText.innerText = file.name;
+            uploadBox.style.borderColor = 'var(--primary)';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function resetFileSelection() {
+    const input = document.getElementById('screenshotInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewImg = document.getElementById('previewImg');
+    const uploadBox = document.getElementById('uploadBox');
+    const uploadBoxText = document.getElementById('uploadBoxText');
+    
+    input.value = '';
+    previewImg.src = '';
+    previewContainer.style.display = 'none';
+    uploadBoxText.innerText = 'Click here to browse files';
+    uploadBox.style.borderColor = '#cbd5e1';
+}
+</script>
+{% endblock %}

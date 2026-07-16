@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Public Inquiry - Edu Click Academy{% endblock %}
+
+{% block content %}
+<!-- Header Banner -->
+<section class="hero-section text-center py-5 mb-5">
+    <div class="container py-3">
+        <h1 class="display-5 fw-extrabold font-heading text-white mb-3">Course Inquiry</h1>
+        <p class="lead text-light mb-0">Have questions about our courses or academy? Send us a message and we'll reply directly.</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card p-4 shadow-sm border border-light rounded-4">
+                <h3 class="font-heading fw-bold mb-4 text-center">Submit Course Inquiry</h3>
+                
+                <form action="{{ url_for('main.public_inquiry') }}" method="POST">
+                    {{ form.csrf_token }}
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else ""), id="nameInput", placeholder="Your Name") }}
+                                <label for="nameInput">Your Name</label>
+                                {% for error in form.name.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), id="emailInput", placeholder="Email Address") }}
+                                <label for="emailInput">Email Address</label>
+                                {% for error in form.email.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.mobile(class="form-control" + (" is-invalid" if form.mobile.errors else ""), id="mobileInput", placeholder="Mobile Number") }}
+                                <label for="mobileInput">Mobile Number</label>
+                                {% for error in form.mobile.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating mb-3">
+                                {{ form.course_id(class="form-select form-control" + (" is-invalid" if form.course_id.errors else ""), id="courseInput", style="padding-top: 1.625rem; padding-bottom: 0.625rem; height: 58px;") }}
+                                <label for="courseInput" style="opacity: 0.65; transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);">Select Course (Optional)</label>
+                                {% for error in form.course_id.errors %}
+                                    <div class="invalid-feedback">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        {{ form.subject(class="form-control" + (" is-invalid" if form.subject.errors else ""), id="subjectInput", placeholder="Subject") }}
+                        <label for="subjectInput">Subject</label>
+                        {% for error in form.subject.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="form-floating mb-3">
+                        {{ form.message(class="form-control" + (" is-invalid" if form.message.errors else ""), id="messageInput", placeholder="Your Message", style="height: 150px;") }}
+                        <label for="messageInput">Your Message</label>
+                        {% for error in form.message.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary px-5 py-2.5 fw-bold text-uppercase text-xs shadow-md">
+                            <i class="bi bi-send-fill me-1"></i> Submit Inquiry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
