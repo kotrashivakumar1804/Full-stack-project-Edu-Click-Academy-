@@ -146,11 +146,7 @@ python app.py
 
 ## 📸 Screenshots
 
-Add screenshots of:
-- Home Page
-- Student Dashboard
-- Admin Dashboard
-- Enrollment Page
+
 
 ---
 
